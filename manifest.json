@@ -1,38 +1,37 @@
 {
-  "manifest_version": 3,
-  "name": "Advanced PDFSafeScan",
-  "version": "1.5.0",
-  "description": "Hosted-ready PDF scanning with the Advanced PDFSafeScan API service.",
-  "permissions": [
-    "contextMenus",
-    "downloads",
-    "storage",
-    "notifications",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "http://127.0.0.1/*",
-    "http://localhost/*",
-    "http://*/*",
-    "https://*/*"
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "action": {
-    "default_title": "Advanced PDFSafeScan",
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icon16.png",
-      "32": "icon32.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+  "name": "PDFSafeScan",
+  "short_name": "PDFSafeScan",
+  "description": "Scan PDFs for malware using hybrid ML and rule-based detection",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1a2332",
+  "theme_color": "#1a2332",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  },
-  "icons": {
-    "16": "icon16.png",
-    "32": "icon32.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-  }
+  ]
 }
