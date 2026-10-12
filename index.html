@@ -828,15 +828,21 @@ function ShieldIcon({ verdict, size = 72 }) {
 
 // ── Logo ──
 function Logo() {
-  return h('svg', { width: 32, height: 32, viewBox: '0 0 32 32' },
-    h('rect', { width: 32, height: 32, rx: 8, fill: 'var(--accent)' }),
+  return h('svg', { width: 36, height: 36, viewBox: '0 0 36 36' },
+    h('defs', null,
+      h('linearGradient', { id: 'shieldGrad', x1: '0', y1: '0', x2: '1', y2: '1' },
+        h('stop', { offset: '0%', stopColor: '#2196F3' }),
+        h('stop', { offset: '100%', stopColor: '#00BCD4' })
+      )
+    ),
+    h('rect', { width: 36, height: 36, rx: 8, fill: '#1a2332' }),
     h('path', {
-      d: 'M16 5l9 5v6c0 6.5-4 11.5-9 13-5-1.5-9-6.5-9-13v-6l9-5z',
-      fill: 'white', opacity: 0.9
+      d: 'M18 6l10 5.5v7c0 6.5-4.2 11.8-10 13.5-5.8-1.7-10-7-10-13.5v-7L18 6z',
+      fill: 'none', stroke: 'url(#shieldGrad)', strokeWidth: 2.2
     }),
     h('path', {
-      d: 'M10 14h5v8h-5z M18 10h4v12h-4z',
-      fill: 'var(--accent)', opacity: 0.8
+      d: 'M13 18l3.5 3.5L23 14',
+      fill: 'none', stroke: '#4CAF50', strokeWidth: 2.4, strokeLinecap: 'round', strokeLinejoin: 'round'
     })
   );
 }
@@ -907,7 +913,7 @@ async function fetchHistory() {
 }
 
 // ── Simple Mode ──
-function SimpleMode() {
+function SimpleMode({ addSessionScan }) {
   const [file, setFile] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
@@ -933,7 +939,9 @@ function SimpleMode() {
     setError(null);
     try {
       const data = await scanFile(file);
+      data.file_name = file.name;
       setResult(data);
+      addSessionScan?.(data);
     } catch (e) {
       setError(e.message || 'Scan failed. The backend may be starting up — try again in a moment.');
     } finally {
@@ -1062,7 +1070,7 @@ function SimpleMode() {
 }
 
 // ── Analyst Mode ──
-function AnalystMode() {
+function AnalystMode({ sessionScans, addSessionScan }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [batchFiles, setBatchFiles] = useState([]);
@@ -1073,11 +1081,26 @@ function AnalystMode() {
     fetchHistory().then(h => { setHistory(h); setLoading(false); });
   }, []);
 
-  // Stats from history
-  const total = history.length;
-  const malicious = history.filter(s => (s.final_label||s.label||'').toLowerCase() === 'malicious').length;
-  const suspicious = history.filter(s => (s.final_label||s.label||'').toLowerCase() === 'suspicious').length;
-  const benign = history.filter(s => (s.final_label||s.label||'').toLowerCase() === 'benign').length;
+  // Merge history + session scans, dedup by sha256
+  const allScans = (() => {
+    const seen = new Set();
+    const merged = [];
+    for (const s of sessionScans) {
+      const key = s.sha256 || s.file_name || Math.random();
+      if (!seen.has(key)) { seen.add(key); merged.push(s); }
+    }
+    for (const s of history) {
+      const key = s.sha256 || s.file_name || Math.random();
+      if (!seen.has(key)) { seen.add(key); merged.push(s); }
+    }
+    return merged;
+  })();
+
+  // Stats from all scans
+  const total = allScans.length;
+  const malicious = allScans.filter(s => (s.final_label||s.label||'').toLowerCase() === 'malicious').length;
+  const suspicious = allScans.filter(s => (s.final_label||s.label||'').toLowerCase() === 'suspicious').length;
+  const benign = allScans.filter(s => (s.final_label||s.label||'').toLowerCase() === 'benign').length;
 
   // Verdict distribution for chart
   const verdictDist = [
@@ -1105,7 +1128,9 @@ function AnalystMode() {
       setBatchResults(prev => ({ ...prev, [f.name]: { status: 'scanning' } }));
       try {
         const data = await scanFile(f);
+        data.file_name = f.name;
         setBatchResults(prev => ({ ...prev, [f.name]: { status: 'done', data } }));
+        addSessionScan?.(data);
       } catch (e) {
         setBatchResults(prev => ({ ...prev, [f.name]: { status: 'error', error: e.message } }));
       }
@@ -1117,8 +1142,8 @@ function AnalystMode() {
 
   const pendingBatch = batchFiles.filter(f => !batchResults[f.name]);
 
-  // Score chart from history
-  const scoreData = history.slice(0, 8).map(s => ({
+  // Score chart from all scans
+  const scoreData = allScans.slice(0, 8).map(s => ({
     label: (s.file_name || s.sha256 || '?').slice(0, 10),
     value: s.rule_score != null ? Number(s.rule_score) : 0
   })).reverse();
@@ -1208,7 +1233,7 @@ function AnalystMode() {
         loading && h('span', { style: { fontSize: 12, color: 'var(--fg-faint)' } }, 'Loading…')
       ),
       h('div', { className: 'panel-body' },
-        history.length === 0 && !loading
+        allScans.length === 0 && !loading
           ? h('div', { className: 'empty-state' }, 'No scan history yet. Scan a file to get started.')
           : h('div', { className: 'table-scroll' },
               h('table', { className: 'history-table' },
@@ -1222,7 +1247,7 @@ function AnalystMode() {
                   )
                 ),
                 h('tbody', null,
-                  history.slice(0, 20).map((s, i) =>
+                  allScans.slice(0, 20).map((s, i) =>
                     h('tr', { key: i },
                       h('td', { className: 'mono' }, (s.file_name || s.sha256 || '—').slice(0, 24)),
                       h('td', null,
@@ -1247,6 +1272,11 @@ function AnalystMode() {
 function App() {
   const [analystMode, setAnalystMode] = useState(false);
   const [online, setOnline] = useState(null);
+  const [sessionScans, setSessionScans] = useState([]);
+
+  function addSessionScan(result) {
+    setSessionScans(prev => [{ ...result, timestamp: new Date().toISOString(), _session: true }, ...prev]);
+  }
 
   useEffect(() => {
     checkHealth().then(setOnline);
@@ -1280,7 +1310,7 @@ function App() {
         )
       )
     ),
-    analystMode ? h(AnalystMode) : h(SimpleMode)
+    analystMode ? h(AnalystMode, { sessionScans, addSessionScan }) : h(SimpleMode, { addSessionScan })
   );
 }
 
