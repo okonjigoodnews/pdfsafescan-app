@@ -1,0 +1,1288 @@
+<title>PDFSafeScan</title>
+<meta name="description" content="Scan PDFs for malware using hybrid ML and rule-based detection">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ── Tokens ── */
+:root {
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f7f7f7;
+  --fg: #111111;
+  --fg-muted: #666666;
+  --fg-faint: #999999;
+  --border: #e2e2e2;
+  --border-strong: #cccccc;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: #eff4ff;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --red-border: #fecaca;
+  --orange: #ea580c;
+  --orange-bg: #fff7ed;
+  --orange-border: #fed7aa;
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --transition: 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f0f0f;
+    --bg-card: #1a1a1a;
+    --bg-card-hover: #222222;
+    --fg: #eeeeee;
+    --fg-muted: #aaaaaa;
+    --fg-faint: #777777;
+    --border: #2a2a2a;
+    --border-strong: #444444;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-soft: #1e293b;
+    --green: #22c55e;
+    --green-bg: #052e16;
+    --green-border: #166534;
+    --red: #ef4444;
+    --red-bg: #450a0a;
+    --red-border: #7f1d1d;
+    --orange: #f97316;
+    --orange-bg: #431407;
+    --orange-border: #7c2d12;
+    --chart-1: #3987e5;
+    --chart-2: #d95926;
+    --chart-3: #199e70;
+    --chart-4: #c98500;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f0f0f;
+  --bg-card: #1a1a1a;
+  --bg-card-hover: #222222;
+  --fg: #eeeeee;
+  --fg-muted: #aaaaaa;
+  --fg-faint: #777777;
+  --border: #2a2a2a;
+  --border-strong: #444444;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-soft: #1e293b;
+  --green: #22c55e;
+  --green-bg: #052e16;
+  --green-border: #166534;
+  --red: #ef4444;
+  --red-bg: #450a0a;
+  --red-border: #7f1d1d;
+  --orange: #f97316;
+  --orange-bg: #431407;
+  --orange-border: #7c2d12;
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-inline: 16px;
+}
+
+/* ── App shell ── */
+#root { max-width: 900px; margin: 0 auto; }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-logo svg { flex-shrink: 0; }
+
+.app-logo h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.app-logo h1 span {
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  transition: background var(--transition);
+}
+.health-dot.online { background: var(--green); }
+.health-dot.offline { background: var(--red); }
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-track {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--border-strong);
+  position: relative;
+  transition: background var(--transition);
+}
+
+.toggle-track.active { background: var(--accent); }
+
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-track.active .toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ── Simple mode ── */
+.scan-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  transition: border-color var(--transition), background var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+
+.scan-zone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.scan-zone.has-file {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.scan-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.scan-zone h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.scan-zone p {
+  color: var(--fg-muted);
+  margin: 0 0 20px;
+  font-size: 14px;
+}
+
+.scan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.1s;
+  font-family: inherit;
+}
+
+.scan-btn:hover { background: var(--accent-hover); }
+.scan-btn:active { transform: scale(0.98); }
+.scan-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin-top: 12px;
+}
+
+.file-info .name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--fg);
+}
+
+.clear-file {
+  background: none;
+  border: none;
+  color: var(--fg-faint);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 4px;
+  font-family: inherit;
+}
+
+/* ── Progress ── */
+.progress-bar {
+  width: 100%;
+  max-width: 300px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% { width: 0; margin-left: 0; }
+  50% { width: 60%; margin-left: 20%; }
+  100% { width: 0; margin-left: 100%; }
+}
+
+/* ── Verdict card ── */
+.verdict-card {
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  margin-top: 24px;
+  animation: fadeInUp 0.4s ease;
+}
+
+.verdict-card.benign {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+}
+.verdict-card.malicious {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+}
+.verdict-card.suspicious {
+  background: var(--orange-bg);
+  border: 1px solid var(--orange-border);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shield-icon {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 16px;
+}
+
+.verdict-label {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.verdict-card.benign .verdict-label { color: var(--green); }
+.verdict-card.malicious .verdict-label { color: var(--red); }
+.verdict-card.suspicious .verdict-label { color: var(--orange); }
+
+.verdict-confidence {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin: 0 0 16px;
+}
+
+.verdict-recommendation {
+  font-size: 15px;
+  color: var(--fg);
+  margin: 0 0 20px;
+  max-width: 480px;
+  margin-inline: auto;
+  line-height: 1.6;
+}
+
+.verdict-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.detail-item {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.detail-item .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+}
+
+.detail-item .value {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.scan-another {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition);
+}
+
+.scan-another:hover { background: var(--bg-card-hover); }
+
+/* ── Analyst mode ── */
+.analyst-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+  margin-bottom: 6px;
+}
+
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card .stat-value.green { color: var(--green); }
+.stat-card .stat-value.red { color: var(--red); }
+.stat-card .stat-value.orange { color: var(--orange); }
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-body { padding: 20px; }
+
+/* ── Charts ── */
+.chart-container {
+  width: 100%;
+  position: relative;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 160px;
+  padding-top: 20px;
+}
+
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar {
+  width: 100%;
+  max-width: 48px;
+  border-radius: 4px 4px 0 0;
+  transition: opacity var(--transition);
+  position: relative;
+  min-height: 2px;
+}
+
+.bar:hover { opacity: 0.8; }
+
+.bar-label {
+  font-size: 11px;
+  color: var(--fg-muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.bar-value {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  text-align: center;
+}
+
+/* ── History table ── */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.history-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.history-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.history-table tr:last-child td { border-bottom: none; }
+
+.history-table .mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.verdict-badge.benign {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+}
+.verdict-badge.malicious {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid var(--red-border);
+}
+.verdict-badge.suspicious {
+  background: var(--orange-bg);
+  color: var(--orange);
+  border: 1px solid var(--orange-border);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* ── Forensic panel ── */
+.forensic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .forensic-grid { grid-template-columns: 1fr; }
+}
+
+.forensic-item {
+  padding: 10px 0;
+}
+
+.forensic-item .f-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-faint);
+  margin-bottom: 2px;
+}
+
+.forensic-item .f-value {
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  word-break: break-all;
+}
+
+/* ── Rules list ── */
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.rule-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rule-item .rule-name {
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.rule-item .rule-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--fg-muted);
+  flex-shrink: 0;
+}
+
+/* ── Batch upload ── */
+.batch-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.batch-zone:hover { border-color: var(--accent); }
+
+.batch-zone p {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+.batch-queue {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.batch-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.batch-item .b-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.batch-item .b-status {
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* ── Error ── */
+.error-banner {
+  padding: 12px 16px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm);
+  color: var(--red);
+  font-size: 14px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Tooltip ── */
+.chart-tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.chart-tooltip.visible { opacity: 1; }
+
+/* ── Utility ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--fg-faint);
+  font-size: 14px;
+}
+
+@media (max-width: 500px) {
+  .app-logo h1 { font-size: 17px; }
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .verdict-card { padding: 24px 16px; }
+  .verdict-label { font-size: 22px; }
+  .shield-icon { width: 56px; height: 56px; }
+}
+</style>
+
+<div id="root"></div>
+<div class="chart-tooltip" id="tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+
+<script>
+const { useState, useEffect, useRef, useCallback, createElement: h, Fragment } = React;
+const API = 'https://advanced-pdf-safescan-api.onrender.com';
+
+// ── Helpers ──
+function cls(...args) { return args.filter(Boolean).join(' '); }
+function pct(v) { return v != null ? (v * 100).toFixed(1) + '%' : '—'; }
+function shortHash(h) { return h ? h.slice(0, 12) + '…' : '—'; }
+function fmtDate(ts) {
+  if (!ts) return '—';
+  try { const d = new Date(ts); return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); }
+  catch { return String(ts); }
+}
+
+function verdictColor(label) {
+  const l = (label||'').toLowerCase();
+  if (l === 'benign') return 'green';
+  if (l === 'malicious') return 'red';
+  return 'orange';
+}
+
+// ── Shield SVG ──
+function ShieldIcon({ verdict, size = 72 }) {
+  const l = (verdict||'').toLowerCase();
+  const color = l === 'benign' ? 'var(--green)' : l === 'malicious' ? 'var(--red)' : 'var(--orange)';
+  const icon = l === 'benign'
+    ? h('path', { d: 'M9 12l2 2 4-4', stroke: 'white', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' })
+    : l === 'malicious'
+    ? h('g', { stroke: 'white', strokeWidth: 2, strokeLinecap: 'round' },
+        h('line', { x1: 9, y1: 9, x2: 15, y2: 15 }),
+        h('line', { x1: 15, y1: 9, x2: 9, y2: 15 })
+      )
+    : h('g', { stroke: 'white', strokeWidth: 2, strokeLinecap: 'round' },
+        h('line', { x1: 12, y1: 8, x2: 12, y2: 12 }),
+        h('circle', { cx: 12, cy: 15, r: 0.5, fill: 'white' })
+      );
+
+  return h('svg', { width: size, height: size, viewBox: '0 0 24 24', className: 'shield-icon' },
+    h('path', {
+      d: 'M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z',
+      fill: color
+    }),
+    icon
+  );
+}
+
+// ── Logo ──
+function Logo() {
+  return h('svg', { width: 32, height: 32, viewBox: '0 0 32 32' },
+    h('rect', { width: 32, height: 32, rx: 8, fill: 'var(--accent)' }),
+    h('path', {
+      d: 'M16 5l9 5v6c0 6.5-4 11.5-9 13-5-1.5-9-6.5-9-13v-6l9-5z',
+      fill: 'white', opacity: 0.9
+    }),
+    h('path', {
+      d: 'M10 14h5v8h-5z M18 10h4v12h-4z',
+      fill: 'var(--accent)', opacity: 0.8
+    })
+  );
+}
+
+// ── Bar Chart ──
+function BarChart({ data, colorFn, labelKey = 'label', valueKey = 'value' }) {
+  const max = Math.max(...data.map(d => d[valueKey]), 1);
+  const tooltipEl = document.getElementById('tooltip');
+
+  function showTip(e, d) {
+    tooltipEl.textContent = d[labelKey] + ': ' + d[valueKey];
+    tooltipEl.style.left = e.clientX + 12 + 'px';
+    tooltipEl.style.top = e.clientY - 30 + 'px';
+    tooltipEl.classList.add('visible');
+  }
+  function hideTip() { tooltipEl.classList.remove('visible'); }
+
+  return h('div', { className: 'chart-container' },
+    h('div', { className: 'bar-chart' },
+      data.map((d, i) =>
+        h('div', { className: 'bar-group', key: i },
+          h('div', { className: 'bar-value' }, d[valueKey]),
+          h('div', {
+            className: 'bar',
+            style: {
+              height: Math.max((d[valueKey] / max) * 120, 2) + 'px',
+              background: colorFn ? colorFn(d, i) : 'var(--chart-1)'
+            },
+            onMouseMove: (e) => showTip(e, d),
+            onMouseLeave: hideTip,
+            role: 'img',
+            'aria-label': d[labelKey] + ': ' + d[valueKey]
+          }),
+          h('div', { className: 'bar-label' }, d[labelKey])
+        )
+      )
+    )
+  );
+}
+
+// ── API layer ──
+async function checkHealth() {
+  try {
+    const r = await fetch(API + '/api/health', { signal: AbortSignal.timeout(8000) });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function scanFile(file, onProgress) {
+  const form = new FormData();
+  form.append('file', file);
+  onProgress?.('uploading');
+  const r = await fetch(API + '/api/scan/file', { method: 'POST', body: form });
+  if (!r.ok) {
+    const body = await r.text();
+    throw new Error(body || 'Scan failed with status ' + r.status);
+  }
+  return r.json();
+}
+
+async function fetchHistory() {
+  try {
+    const r = await fetch(API + '/api/scan/recent', { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return [];
+    const data = await r.json();
+    return Array.isArray(data) ? data : (data.scans || data.results || []);
+  } catch { return []; }
+}
+
+// ── Simple Mode ──
+function SimpleMode() {
+  const [file, setFile] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [dragover, setDragover] = useState(false);
+  const inputRef = useRef();
+
+  function handleFiles(files) {
+    if (!files || !files.length) return;
+    const f = files[0];
+    if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setError(null);
+    setResult(null);
+  }
+
+  async function doScan() {
+    if (!file) return;
+    setScanning(true);
+    setError(null);
+    try {
+      const data = await scanFile(file);
+      setResult(data);
+    } catch (e) {
+      setError(e.message || 'Scan failed. The backend may be starting up — try again in a moment.');
+    } finally {
+      setScanning(false);
+    }
+  }
+
+  function reset() {
+    setFile(null);
+    setResult(null);
+    setError(null);
+  }
+
+  if (result) {
+    const v = (result.final_label || 'suspicious').toLowerCase();
+    return h('div', null,
+      h('div', { className: cls('verdict-card', v) },
+        h(ShieldIcon, { verdict: v }),
+        h('h2', { className: 'verdict-label' }, result.final_label || 'Unknown'),
+        h('p', { className: 'verdict-confidence' },
+          'Confidence: ', pct(result.final_confidence),
+          ' · Rule severity: ', result.rule_severity || '—'
+        ),
+        result.recommendation && h('p', { className: 'verdict-recommendation' }, result.recommendation),
+        h('div', { className: 'verdict-details' },
+          h('div', { className: 'detail-item' },
+            h('div', { className: 'label' }, 'ML Label'),
+            h('div', { className: 'value' }, result.ml_label || '—')
+          ),
+          h('div', { className: 'detail-item' },
+            h('div', { className: 'label' }, 'ML Confidence'),
+            h('div', { className: 'value' }, pct(result.ml_confidence))
+          ),
+          h('div', { className: 'detail-item' },
+            h('div', { className: 'label' }, 'Rule Score'),
+            h('div', { className: 'value' }, result.rule_score != null ? result.rule_score.toFixed(2) : '—')
+          ),
+          h('div', { className: 'detail-item' },
+            h('div', { className: 'label' }, 'SHA-256'),
+            h('div', { className: 'value' }, shortHash(result.sha256))
+          )
+        ),
+        h('button', { className: 'scan-another', onClick: reset }, 'Scan another file')
+      ),
+      result.triggered_rules && result.triggered_rules.length > 0 && h('div', { className: 'panel', style: { marginTop: 20 } },
+        h('div', { className: 'panel-header' }, 'Triggered Rules'),
+        h('div', { className: 'panel-body' },
+          h('div', { className: 'rules-list' },
+            result.triggered_rules.map((r, i) =>
+              h('div', { className: 'rule-item', key: i },
+                h('div', { className: 'rule-dot', style: { background: v === 'benign' ? 'var(--green)' : v === 'malicious' ? 'var(--red)' : 'var(--orange)' } }),
+                h('span', { className: 'rule-name' }, r.name || r.rule_name || r),
+                r.score != null && h('span', { className: 'rule-score' }, '+' + r.score)
+              )
+            )
+          )
+        )
+      ),
+      result.explanations && result.explanations.length > 0 && h('div', { className: 'panel', style: { marginTop: 16 } },
+        h('div', { className: 'panel-header' }, 'Explanations'),
+        h('div', { className: 'panel-body' },
+          h('div', { className: 'rules-list' },
+            result.explanations.map((ex, i) =>
+              h('div', { className: 'rule-item', key: i },
+                h('span', { className: 'rule-name' }, typeof ex === 'string' ? ex : ex.text || JSON.stringify(ex))
+              )
+            )
+          )
+        )
+      )
+    );
+  }
+
+  return h('div', null,
+    h('div', {
+      className: cls('scan-zone', dragover && 'dragover', file && 'has-file'),
+      onClick: () => !file && inputRef.current?.click(),
+      onDragOver: (e) => { e.preventDefault(); setDragover(true); },
+      onDragLeave: () => setDragover(false),
+      onDrop: (e) => { e.preventDefault(); setDragover(false); handleFiles(e.dataTransfer.files); }
+    },
+      h('input', {
+        ref: inputRef,
+        type: 'file',
+        accept: '.pdf,application/pdf',
+        className: 'sr-only',
+        onChange: (e) => handleFiles(e.target.files)
+      }),
+      !file && !scanning && h(Fragment, null,
+        h('svg', { className: 'scan-icon', viewBox: '0 0 80 80', fill: 'none' },
+          h('rect', { x: 15, y: 8, width: 50, height: 64, rx: 6, stroke: 'var(--fg-faint)', strokeWidth: 2.5 }),
+          h('path', { d: 'M28 28h24M28 38h24M28 48h16', stroke: 'var(--fg-faint)', strokeWidth: 2, strokeLinecap: 'round' }),
+          h('circle', { cx: 54, cy: 56, r: 12, stroke: 'var(--accent)', strokeWidth: 2.5 }),
+          h('line', { x1: 62, y1: 64, x2: 70, y2: 72, stroke: 'var(--accent)', strokeWidth: 2.5, strokeLinecap: 'round' })
+        ),
+        h('h2', null, 'Scan a PDF'),
+        h('p', null, 'Drop a file here or click to browse')
+      ),
+      file && !scanning && h(Fragment, null,
+        h('div', { className: 'file-info' },
+          h('span', null, '📄'),
+          h('span', { className: 'name' }, file.name),
+          h('span', null, '(' + (file.size / 1024).toFixed(1) + ' KB)'),
+          h('button', { className: 'clear-file', onClick: (e) => { e.stopPropagation(); reset(); }, 'aria-label': 'Remove file' }, '×')
+        ),
+        h('button', { className: 'scan-btn', onClick: (e) => { e.stopPropagation(); doScan(); } },
+          h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none' },
+            h('path', { d: 'M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z', stroke: 'white', strokeWidth: 2, fill: 'none' })
+          ),
+          'Scan PDF'
+        )
+      ),
+      scanning && h(Fragment, null,
+        h('p', { style: { marginBottom: 8 } }, 'Analyzing…'),
+        h('div', { className: 'progress-bar' },
+          h('div', { className: 'progress-fill' })
+        ),
+        h('p', { style: { fontSize: 13, color: 'var(--fg-faint)', marginTop: 12 } }, 'Running hybrid ML + rule engine')
+      )
+    ),
+    error && h('div', { className: 'error-banner' },
+      h('span', null, '⚠'),
+      h('span', null, error)
+    )
+  );
+}
+
+// ── Analyst Mode ──
+function AnalystMode() {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [batchFiles, setBatchFiles] = useState([]);
+  const [batchResults, setBatchResults] = useState({});
+  const batchRef = useRef();
+
+  useEffect(() => {
+    fetchHistory().then(h => { setHistory(h); setLoading(false); });
+  }, []);
+
+  // Stats from history
+  const total = history.length;
+  const malicious = history.filter(s => (s.final_label||s.label||'').toLowerCase() === 'malicious').length;
+  const suspicious = history.filter(s => (s.final_label||s.label||'').toLowerCase() === 'suspicious').length;
+  const benign = history.filter(s => (s.final_label||s.label||'').toLowerCase() === 'benign').length;
+
+  // Verdict distribution for chart
+  const verdictDist = [
+    { label: 'Benign', value: benign },
+    { label: 'Suspicious', value: suspicious },
+    { label: 'Malicious', value: malicious }
+  ];
+
+  function verdictBarColor(d) {
+    if (d.label === 'Benign') return 'var(--green)';
+    if (d.label === 'Malicious') return 'var(--red)';
+    return 'var(--orange)';
+  }
+
+  // Batch upload
+  function handleBatch(files) {
+    if (!files) return;
+    const pdfs = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+    setBatchFiles(prev => [...prev, ...pdfs]);
+  }
+
+  async function runBatch() {
+    for (const f of batchFiles) {
+      if (batchResults[f.name]) continue;
+      setBatchResults(prev => ({ ...prev, [f.name]: { status: 'scanning' } }));
+      try {
+        const data = await scanFile(f);
+        setBatchResults(prev => ({ ...prev, [f.name]: { status: 'done', data } }));
+      } catch (e) {
+        setBatchResults(prev => ({ ...prev, [f.name]: { status: 'error', error: e.message } }));
+      }
+    }
+    // Refresh history
+    const fresh = await fetchHistory();
+    setHistory(fresh);
+  }
+
+  const pendingBatch = batchFiles.filter(f => !batchResults[f.name]);
+
+  // Score chart from history
+  const scoreData = history.slice(0, 8).map(s => ({
+    label: (s.file_name || s.sha256 || '?').slice(0, 10),
+    value: s.rule_score != null ? Number(s.rule_score) : 0
+  })).reverse();
+
+  return h('div', { className: 'analyst-grid' },
+    // Stat row
+    h('div', { className: 'stat-row' },
+      h('div', { className: 'stat-card' },
+        h('div', { className: 'stat-label' }, 'Total Scans'),
+        h('div', { className: 'stat-value' }, total)
+      ),
+      h('div', { className: 'stat-card' },
+        h('div', { className: 'stat-label' }, 'Malicious'),
+        h('div', { className: cls('stat-value', 'red') }, malicious)
+      ),
+      h('div', { className: 'stat-card' },
+        h('div', { className: 'stat-label' }, 'Suspicious'),
+        h('div', { className: cls('stat-value', 'orange') }, suspicious)
+      ),
+      h('div', { className: 'stat-card' },
+        h('div', { className: 'stat-label' }, 'Benign'),
+        h('div', { className: cls('stat-value', 'green') }, benign)
+      )
+    ),
+
+    // Charts row
+    total > 0 && h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 } },
+      h('div', { className: 'panel' },
+        h('div', { className: 'panel-header' }, 'Verdict Distribution'),
+        h('div', { className: 'panel-body' },
+          h(BarChart, { data: verdictDist, colorFn: verdictBarColor })
+        )
+      ),
+      scoreData.length > 0 && h('div', { className: 'panel' },
+        h('div', { className: 'panel-header' }, 'Rule Scores (Recent)'),
+        h('div', { className: 'panel-body' },
+          h(BarChart, { data: scoreData, colorFn: () => 'var(--chart-1)' })
+        )
+      )
+    ),
+
+    // Batch upload
+    h('div', { className: 'panel' },
+      h('div', { className: 'panel-header' },
+        h('span', null, 'Batch Upload'),
+        batchFiles.length > 0 && pendingBatch.length > 0 && h('button', {
+          className: 'scan-btn',
+          style: { padding: '6px 16px', fontSize: 13 },
+          onClick: runBatch
+        }, 'Scan All')
+      ),
+      h('div', { className: 'panel-body' },
+        h('div', {
+          className: 'batch-zone',
+          onClick: () => batchRef.current?.click(),
+          onDragOver: (e) => e.preventDefault(),
+          onDrop: (e) => { e.preventDefault(); handleBatch(e.dataTransfer.files); }
+        },
+          h('input', {
+            ref: batchRef,
+            type: 'file',
+            accept: '.pdf,application/pdf',
+            multiple: true,
+            className: 'sr-only',
+            onChange: (e) => handleBatch(e.target.files)
+          }),
+          h('p', null, 'Drop multiple PDFs here or click to select')
+        ),
+        batchFiles.length > 0 && h('div', { className: 'batch-queue' },
+          batchFiles.map((f, i) => {
+            const r = batchResults[f.name];
+            const statusText = !r ? 'Queued' : r.status === 'scanning' ? 'Scanning…' : r.status === 'error' ? 'Error' : (r.data?.final_label || 'Done');
+            const statusColor = !r ? 'var(--fg-faint)' : r.status === 'scanning' ? 'var(--accent)' : r.status === 'error' ? 'var(--red)' : verdictColor(r.data?.final_label) === 'green' ? 'var(--green)' : verdictColor(r.data?.final_label) === 'red' ? 'var(--red)' : 'var(--orange)';
+            return h('div', { className: 'batch-item', key: i },
+              h('span', { className: 'b-name' }, f.name),
+              h('span', { className: 'b-status', style: { color: statusColor } }, statusText)
+            );
+          })
+        )
+      )
+    ),
+
+    // History table
+    h('div', { className: 'panel' },
+      h('div', { className: 'panel-header' },
+        h('span', null, 'Scan History'),
+        loading && h('span', { style: { fontSize: 12, color: 'var(--fg-faint)' } }, 'Loading…')
+      ),
+      h('div', { className: 'panel-body' },
+        history.length === 0 && !loading
+          ? h('div', { className: 'empty-state' }, 'No scan history yet. Scan a file to get started.')
+          : h('div', { className: 'table-scroll' },
+              h('table', { className: 'history-table' },
+                h('thead', null,
+                  h('tr', null,
+                    h('th', null, 'File'),
+                    h('th', null, 'Verdict'),
+                    h('th', null, 'Confidence'),
+                    h('th', null, 'Rule Score'),
+                    h('th', null, 'Time')
+                  )
+                ),
+                h('tbody', null,
+                  history.slice(0, 20).map((s, i) =>
+                    h('tr', { key: i },
+                      h('td', { className: 'mono' }, (s.file_name || s.sha256 || '—').slice(0, 24)),
+                      h('td', null,
+                        h('span', { className: cls('verdict-badge', (s.final_label||s.label||'unknown').toLowerCase()) },
+                          s.final_label || s.label || '—'
+                        )
+                      ),
+                      h('td', null, pct(s.final_confidence || s.confidence)),
+                      h('td', { className: 'mono' }, s.rule_score != null ? Number(s.rule_score).toFixed(2) : '—'),
+                      h('td', null, fmtDate(s.timestamp || s.report_timestamp))
+                    )
+                  )
+                )
+              )
+            )
+      )
+    )
+  );
+}
+
+// ── App ──
+function App() {
+  const [analystMode, setAnalystMode] = useState(false);
+  const [online, setOnline] = useState(null);
+
+  useEffect(() => {
+    checkHealth().then(setOnline);
+    const id = setInterval(() => checkHealth().then(setOnline), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  return h('div', null,
+    h('header', { className: 'app-header' },
+      h('div', { className: 'app-logo' },
+        h(Logo),
+        h('h1', null, 'PDFSafe', h('span', null, 'Scan'))
+      ),
+      h('div', { className: 'header-controls' },
+        h('div', {
+          className: cls('health-dot', online === true ? 'online' : online === false ? 'offline' : ''),
+          title: online === true ? 'API online' : online === false ? 'API offline' : 'Checking…'
+        }),
+        h('label', { className: 'mode-toggle' },
+          h('span', null, analystMode ? 'Analyst' : 'Simple'),
+          h('div', {
+            className: cls('toggle-track', analystMode && 'active'),
+            onClick: () => setAnalystMode(p => !p),
+            role: 'switch',
+            'aria-checked': analystMode,
+            tabIndex: 0,
+            onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAnalystMode(p => !p); } }
+          },
+            h('div', { className: 'toggle-thumb' })
+          )
+        )
+      )
+    ),
+    analystMode ? h(AnalystMode) : h(SimpleMode)
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
