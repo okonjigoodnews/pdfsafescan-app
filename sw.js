@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pdfsafescan-v2';
+const CACHE_NAME = 'pdfsafescan-v3';
 const LOCAL_ASSETS = [
   '/',
   '/index.html',
