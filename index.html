@@ -168,7 +168,7 @@ body {
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .health-dot {
@@ -180,6 +180,31 @@ body {
 }
 .health-dot.online { background: var(--green); }
 .health-dot.offline { background: var(--red); }
+
+/* ── Icon buttons (theme, about) ── */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--fg-muted);
+  padding: 0;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+}
+.icon-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.icon-btn svg { width: 18px; height: 18px; }
 
 .mode-toggle {
   display: flex;
@@ -479,8 +504,41 @@ body {
   font-family: 'JetBrains Mono', monospace;
 }
 
-.scan-another {
+/* ── Verdict action buttons ── */
+.verdict-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+.action-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+.action-btn svg { width: 16px; height: 16px; }
+
+.scan-another {
   padding: 10px 24px;
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
@@ -499,6 +557,216 @@ body {
   color: white;
   border-color: var(--accent);
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+/* ── Simple mode history ── */
+.simple-history {
+  margin-top: 32px;
+  animation: fadeInUp 0.4s ease;
+}
+.simple-history h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--fg-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+.history-entry:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.history-entry .h-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.history-entry .h-time {
+  font-size: 12px;
+  color: var(--fg-faint);
+  flex-shrink: 0;
+}
+.clear-history-btn {
+  background: none;
+  border: none;
+  color: var(--fg-faint);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all var(--transition);
+  margin-left: auto;
+}
+.clear-history-btn:hover { color: var(--red); background: var(--red-bg); }
+
+/* ── Modal (About) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  max-width: 520px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 18px;
+  font-family: inherit;
+  transition: all var(--transition);
+}
+.modal-close:hover { background: var(--red-bg); color: var(--red); }
+.modal-body {
+  padding: 20px 24px 24px;
+}
+.modal-body p {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin: 0 0 16px;
+  line-height: 1.7;
+}
+.modal-body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 20px 0 8px;
+  color: var(--fg);
+}
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.5;
+}
+.feature-list .f-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--accent-soft);
+}
+.modal-version {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--fg-faint);
+  text-align: center;
+}
+
+/* ── Skeleton loading ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg-card-hover) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-stat { height: 80px; }
+.skeleton-panel { height: 200px; border-radius: var(--radius); }
+.skeleton-row { height: 44px; margin-bottom: 8px; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 13px;
+  box-shadow: var(--shadow-lg);
+  z-index: 2000;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ── Analyst mode ── */
@@ -584,10 +852,7 @@ body {
 .panel-body { padding: 20px; }
 
 /* ── Charts ── */
-.chart-container {
-  width: 100%;
-  position: relative;
-}
+.chart-container { width: 100%; position: relative; }
 
 .bar-chart {
   display: flex;
@@ -695,9 +960,7 @@ body {
   border: 1px solid var(--orange-border);
 }
 
-.table-scroll {
-  overflow-x: auto;
-}
+.table-scroll { overflow-x: auto; }
 
 /* ── Forensic panel ── */
 .forensic-grid {
@@ -710,9 +973,7 @@ body {
   .forensic-grid { grid-template-columns: 1fr; }
 }
 
-.forensic-item {
-  padding: 10px 0;
-}
+.forensic-item { padding: 10px 0; }
 
 .forensic-item .f-label {
   font-size: 11px;
@@ -866,7 +1127,7 @@ body {
   font-size: 14px;
 }
 
-/* ── Mobile improvements ── */
+/* ── Mobile ── */
 @media (max-width: 600px) {
   body { padding-inline: 12px; }
   #root { padding-bottom: 32px; }
@@ -896,6 +1157,9 @@ body {
   .detail-item .label { font-size: 10px; }
   .detail-item .value { font-size: 13px; }
 
+  .verdict-actions { gap: 8px; }
+  .action-btn { padding: 8px 14px; font-size: 12px; flex: 1; min-width: 0; justify-content: center; }
+
   .stat-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .stat-card { padding: 12px; }
   .stat-card .stat-value { font-size: 20px; }
@@ -918,8 +1182,14 @@ body {
   .file-info .name { font-size: 12px; }
 
   .rule-item { padding: 8px 10px; font-size: 12px; }
-
   .error-banner { font-size: 13px; padding: 10px 12px; }
+
+  .modal-content { max-height: 90vh; }
+  .modal-header { padding: 16px 18px 12px; }
+  .modal-body { padding: 16px 18px 20px; }
+
+  .icon-btn { width: 30px; height: 30px; }
+  .icon-btn svg { width: 16px; height: 16px; }
 }
 
 @media (max-width: 380px) {
@@ -933,6 +1203,7 @@ body {
 
 <div id="root"></div>
 <div class="chart-tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
@@ -947,40 +1218,187 @@ function pct(v) { return v != null ? (v * 100).toFixed(1) + '%' : '—'; }
 function shortHash(h) { return h ? h.slice(0, 12) + '…' : '—'; }
 function fmtDate(ts) {
   if (!ts) return '—';
-  try { const d = new Date(ts); return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); }
-  catch { return String(ts); }
+  try { var d = new Date(ts); return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); }
+  catch(e) { return String(ts); }
 }
 
 function verdictColor(label) {
-  const l = (label||'').toLowerCase();
+  var l = (label||'').toLowerCase();
   if (l === 'benign') return 'green';
   if (l === 'malicious') return 'red';
   return 'orange';
 }
 
+// ── Toast ──
+var _toastTimer;
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  clearTimeout(_toastTimer);
+  el.textContent = msg;
+  el.classList.add('show');
+  _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// ── Notification sound (Web Audio API) ──
+function playNotificationSound(verdict) {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.value = 0.15;
+    var v = (verdict || '').toLowerCase();
+    if (v === 'benign') {
+      osc.frequency.value = 523;
+      osc.type = 'sine';
+      osc.start(ctx.currentTime);
+      osc.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.stop(ctx.currentTime + 0.4);
+    } else if (v === 'malicious') {
+      osc.frequency.value = 440;
+      osc.type = 'square';
+      osc.start(ctx.currentTime);
+      osc.frequency.setValueAtTime(330, ctx.currentTime + 0.15);
+      osc.frequency.setValueAtTime(262, ctx.currentTime + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.stop(ctx.currentTime + 0.5);
+    } else {
+      osc.frequency.value = 440;
+      osc.type = 'triangle';
+      osc.start(ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.3);
+    }
+  } catch(e) {}
+}
+
+// ── Browser Notification ──
+function sendBrowserNotification(result) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    var v = (result.final_label || 'Unknown').toUpperCase();
+    new Notification('PDFSafeScan Result', {
+      body: (result.file_name || 'File') + ': ' + v + ' (' + pct(result.final_confidence) + ' confidence)',
+      icon: 'icon-192.png',
+      tag: 'scan-result'
+    });
+  } catch(e) {}
+}
+
+// ── Export report ──
+function exportReport(result) {
+  var lines = [
+    '===========================================',
+    '         PDFSafeScan - Scan Report',
+    '===========================================',
+    '',
+    'Date: ' + new Date().toLocaleString(),
+    'File: ' + (result.file_name || 'Unknown'),
+    '',
+    '--- VERDICT ---',
+    'Final Label: ' + (result.final_label || 'Unknown'),
+    'Confidence: ' + pct(result.final_confidence),
+    'Rule Severity: ' + (result.rule_severity || 'N/A'),
+    '',
+    '--- DETAILS ---',
+    'ML Label: ' + (result.ml_label || 'N/A'),
+    'ML Confidence: ' + pct(result.ml_confidence),
+    'Rule Score: ' + (result.rule_score != null ? result.rule_score.toFixed(2) : 'N/A'),
+    'SHA-256: ' + (result.sha256 || 'N/A'),
+    ''
+  ];
+  if (result.recommendation) {
+    lines.push('--- RECOMMENDATION ---', result.recommendation, '');
+  }
+  if (result.triggered_rules && result.triggered_rules.length > 0) {
+    lines.push('--- TRIGGERED RULES ---');
+    result.triggered_rules.forEach(function(r) {
+      var name = r.name || r.rule_name || r;
+      lines.push('  - ' + name + (r.score != null ? ' (+' + r.score + ')' : ''));
+    });
+    lines.push('');
+  }
+  if (result.explanations && result.explanations.length > 0) {
+    lines.push('--- EXPLANATIONS ---');
+    result.explanations.forEach(function(ex) {
+      lines.push('  - ' + (typeof ex === 'string' ? ex : ex.text || JSON.stringify(ex)));
+    });
+    lines.push('');
+  }
+  lines.push('===========================================');
+  lines.push('Generated by PDFSafeScan');
+  lines.push('===========================================');
+
+  var blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'pdfsafescan-report-' + new Date().toISOString().slice(0,10) + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Report downloaded');
+}
+
+// ── Share result ──
+function shareResult(result) {
+  var v = (result.final_label || 'Unknown').toUpperCase();
+  var text = 'PDFSafeScan Result\nFile: ' + (result.file_name || 'Unknown')
+    + '\nVerdict: ' + v + ' (' + pct(result.final_confidence) + ' confidence)'
+    + '\nRule Score: ' + (result.rule_score != null ? result.rule_score.toFixed(2) : 'N/A')
+    + (result.recommendation ? '\n\n' + result.recommendation : '');
+
+  if (navigator.share) {
+    navigator.share({ title: 'PDFSafeScan Report', text: text }).catch(function() {});
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('Copied to clipboard');
+    }).catch(function() { showToast('Could not copy'); });
+  }
+}
+
+// ── LocalStorage helpers ──
+function loadScanHistory() {
+  try { var d = localStorage.getItem('pdfsafescan_history'); return d ? JSON.parse(d) : []; }
+  catch(e) { return []; }
+}
+function saveScanHistory(scans) {
+  try { localStorage.setItem('pdfsafescan_history', JSON.stringify(scans.slice(0, 50))); }
+  catch(e) {}
+}
+function getStoredTheme() {
+  try { return localStorage.getItem('pdfsafescan_theme') || 'system'; }
+  catch(e) { return 'system'; }
+}
+function applyTheme(theme) {
+  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  try { localStorage.setItem('pdfsafescan_theme', theme); } catch(e) {}
+}
+applyTheme(getStoredTheme());
+
 // ── Shield SVG ──
-function ShieldIcon({ verdict, size = 72 }) {
-  const l = (verdict||'').toLowerCase();
-  const color = l === 'benign' ? 'var(--green)' : l === 'malicious' ? 'var(--red)' : 'var(--orange)';
-  const icon = l === 'benign'
+function ShieldIcon({ verdict, size }) {
+  size = size || 72;
+  var l = (verdict||'').toLowerCase();
+  var color = l === 'benign' ? 'var(--green)' : l === 'malicious' ? 'var(--red)' : 'var(--orange)';
+  var icon = l === 'benign'
     ? h('path', { d: 'M9 12l2 2 4-4', stroke: 'white', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' })
     : l === 'malicious'
     ? h('g', { stroke: 'white', strokeWidth: 2, strokeLinecap: 'round' },
         h('line', { x1: 9, y1: 9, x2: 15, y2: 15 }),
-        h('line', { x1: 15, y1: 9, x2: 9, y2: 15 })
-      )
+        h('line', { x1: 15, y1: 9, x2: 9, y2: 15 }))
     : h('g', { stroke: 'white', strokeWidth: 2, strokeLinecap: 'round' },
         h('line', { x1: 12, y1: 8, x2: 12, y2: 12 }),
-        h('circle', { cx: 12, cy: 15, r: 0.5, fill: 'white' })
-      );
-
+        h('circle', { cx: 12, cy: 15, r: 0.5, fill: 'white' }));
   return h('svg', { width: size, height: size, viewBox: '0 0 24 24', className: 'shield-icon' },
-    h('path', {
-      d: 'M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z',
-      fill: color
-    }),
-    icon
-  );
+    h('path', { d: 'M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z', fill: color }),
+    icon);
 }
 
 // ── Logo ──
@@ -989,26 +1407,29 @@ function Logo() {
     h('defs', null,
       h('linearGradient', { id: 'shieldGrad', x1: '0', y1: '0', x2: '1', y2: '1' },
         h('stop', { offset: '0%', stopColor: '#2196F3' }),
-        h('stop', { offset: '100%', stopColor: '#00BCD4' })
-      )
-    ),
+        h('stop', { offset: '100%', stopColor: '#00BCD4' }))),
     h('rect', { width: 36, height: 36, rx: 8, fill: '#1a2332' }),
-    h('path', {
-      d: 'M18 6l10 5.5v7c0 6.5-4.2 11.8-10 13.5-5.8-1.7-10-7-10-13.5v-7L18 6z',
-      fill: 'none', stroke: 'url(#shieldGrad)', strokeWidth: 2.2
-    }),
-    h('path', {
-      d: 'M13 18l3.5 3.5L23 14',
-      fill: 'none', stroke: '#4CAF50', strokeWidth: 2.4, strokeLinecap: 'round', strokeLinejoin: 'round'
-    })
-  );
+    h('path', { d: 'M18 6l10 5.5v7c0 6.5-4.2 11.8-10 13.5-5.8-1.7-10-7-10-13.5v-7L18 6z', fill: 'none', stroke: 'url(#shieldGrad)', strokeWidth: 2.2 }),
+    h('path', { d: 'M13 18l3.5 3.5L23 14', fill: 'none', stroke: '#4CAF50', strokeWidth: 2.4, strokeLinecap: 'round', strokeLinejoin: 'round' }));
+}
+
+// ── Theme icons ──
+function SunIcon() {
+  return h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' },
+    h('circle', { cx: 12, cy: 12, r: 5 }),
+    h('path', { d: 'M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' }));
+}
+function MoonIcon() {
+  return h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' },
+    h('path', { d: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z' }));
 }
 
 // ── Bar Chart ──
-function BarChart({ data, colorFn, labelKey = 'label', valueKey = 'value' }) {
-  const max = Math.max(...data.map(d => d[valueKey]), 1);
-  const tooltipEl = document.getElementById('tooltip');
-
+function BarChart({ data, colorFn, labelKey, valueKey }) {
+  labelKey = labelKey || 'label';
+  valueKey = valueKey || 'value';
+  var max = Math.max.apply(null, data.map(function(d) { return d[valueKey]; }).concat([1]));
+  var tooltipEl = document.getElementById('tooltip');
   function showTip(e, d) {
     tooltipEl.textContent = d[labelKey] + ': ' + d[valueKey];
     tooltipEl.style.left = e.clientX + 12 + 'px';
@@ -1016,45 +1437,99 @@ function BarChart({ data, colorFn, labelKey = 'label', valueKey = 'value' }) {
     tooltipEl.classList.add('visible');
   }
   function hideTip() { tooltipEl.classList.remove('visible'); }
-
   return h('div', { className: 'chart-container' },
     h('div', { className: 'bar-chart' },
-      data.map((d, i) =>
-        h('div', { className: 'bar-group', key: i },
+      data.map(function(d, i) {
+        return h('div', { className: 'bar-group', key: i },
           h('div', { className: 'bar-value' }, d[valueKey]),
           h('div', {
             className: 'bar',
-            style: {
-              height: Math.max((d[valueKey] / max) * 120, 2) + 'px',
-              background: colorFn ? colorFn(d, i) : 'var(--chart-1)'
-            },
-            onMouseMove: (e) => showTip(e, d),
+            style: { height: Math.max((d[valueKey] / max) * 120, 2) + 'px', background: colorFn ? colorFn(d, i) : 'var(--chart-1)' },
+            onMouseMove: function(e) { showTip(e, d); },
             onMouseLeave: hideTip,
             role: 'img',
             'aria-label': d[labelKey] + ': ' + d[valueKey]
           }),
-          h('div', { className: 'bar-label' }, d[labelKey])
-        )
-      )
-    )
-  );
+          h('div', { className: 'bar-label' }, d[labelKey]));
+      })));
+}
+
+// ── About Modal ──
+function AboutModal({ onClose }) {
+  useEffect(function() {
+    function handleKey(e) { if (e.key === 'Escape') onClose(); }
+    window.addEventListener('keydown', handleKey);
+    return function() { window.removeEventListener('keydown', handleKey); };
+  }, [onClose]);
+
+  return h('div', { className: 'modal-overlay', onClick: function(e) { if (e.target === e.currentTarget) onClose(); } },
+    h('div', { className: 'modal-content' },
+      h('div', { className: 'modal-header' },
+        h('h2', null, 'About PDFSafeScan'),
+        h('button', { className: 'modal-close', onClick: onClose, 'aria-label': 'Close' }, '×')),
+      h('div', { className: 'modal-body' },
+        h('p', null, 'PDFSafeScan is a hybrid malware detection system that combines machine learning with rule-based analysis to identify potentially dangerous PDF files.'),
+        h('h3', null, 'How it works'),
+        h('ul', { className: 'feature-list' },
+          h('li', null,
+            h('span', { className: 'f-icon' }, '🧠'),
+            h('span', null, h('strong', null, 'ML Engine'), ' — A trained model classifies PDFs based on structural features and content patterns.')),
+          h('li', null,
+            h('span', { className: 'f-icon' }, '📋'),
+            h('span', null, h('strong', null, 'Rule Engine'), ' — Static rules check for known malicious patterns like JavaScript, auto-actions, and embedded objects.')),
+          h('li', null,
+            h('span', { className: 'f-icon' }, '⚖️'),
+            h('span', null, h('strong', null, 'Hybrid Decision'), ' — Both engines contribute to a final verdict with weighted confidence scoring.')),
+          h('li', null,
+            h('span', { className: 'f-icon' }, '🔒'),
+            h('span', null, h('strong', null, 'Privacy-First'), ' — Files are analyzed server-side and not stored permanently.'))),
+        h('h3', null, 'Verdicts'),
+        h('ul', { className: 'feature-list' },
+          h('li', null,
+            h('span', { className: 'f-icon', style: { background: 'var(--green-bg)', color: 'var(--green)' } }, '✅'),
+            h('span', null, h('strong', null, 'Benign'), ' — No malicious indicators detected. File appears safe.')),
+          h('li', null,
+            h('span', { className: 'f-icon', style: { background: 'var(--orange-bg)', color: 'var(--orange)' } }, '⚠️'),
+            h('span', null, h('strong', null, 'Suspicious'), ' — Some indicators found. Review with caution.')),
+          h('li', null,
+            h('span', { className: 'f-icon', style: { background: 'var(--red-bg)', color: 'var(--red)' } }, '❌'),
+            h('span', null, h('strong', null, 'Malicious'), ' — Strong malicious indicators. Do not open this file.'))),
+        h('div', { className: 'modal-version' }, 'PDFSafeScan v2.0 · Hybrid ML + Rule-Based Detection'))));
+}
+
+// ── Skeleton Loader ──
+function SkeletonLoader() {
+  return h('div', { className: 'analyst-grid' },
+    h('div', { className: 'stat-row' },
+      h('div', { className: 'skeleton skeleton-stat' }),
+      h('div', { className: 'skeleton skeleton-stat' }),
+      h('div', { className: 'skeleton skeleton-stat' }),
+      h('div', { className: 'skeleton skeleton-stat' })),
+    h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 } },
+      h('div', { className: 'skeleton skeleton-panel' }),
+      h('div', { className: 'skeleton skeleton-panel' })),
+    h('div', { className: 'skeleton skeleton-panel', style: { height: 120 } }),
+    h('div', null,
+      h('div', { className: 'skeleton skeleton-row' }),
+      h('div', { className: 'skeleton skeleton-row' }),
+      h('div', { className: 'skeleton skeleton-row' }),
+      h('div', { className: 'skeleton skeleton-row' })));
 }
 
 // ── API layer ──
 async function checkHealth() {
   try {
-    const r = await fetch(API + '/api/health', { signal: AbortSignal.timeout(8000) });
+    var r = await fetch(API + '/api/health', { signal: AbortSignal.timeout(8000) });
     return r.ok;
-  } catch { return false; }
+  } catch(e) { return false; }
 }
 
-async function scanFile(file, onProgress) {
-  const form = new FormData();
+async function scanFile(file) {
+  var form = new FormData();
   form.append('file', file);
-  onProgress?.('uploading');
-  const r = await fetch(API + '/api/scan/file', { method: 'POST', body: form });
+  var r = await fetch(API + '/api/scan/file', { method: 'POST', body: form });
   if (!r.ok) {
-    const body = await r.text();
+    var body = await r.text();
     throw new Error(body || 'Scan failed with status ' + r.status);
   }
   return r.json();
@@ -1062,25 +1537,25 @@ async function scanFile(file, onProgress) {
 
 async function fetchHistory() {
   try {
-    const r = await fetch(API + '/api/scan/recent', { signal: AbortSignal.timeout(10000) });
+    var r = await fetch(API + '/api/scan/recent', { signal: AbortSignal.timeout(10000) });
     if (!r.ok) return [];
-    const data = await r.json();
+    var data = await r.json();
     return Array.isArray(data) ? data : (data.scans || data.results || []);
-  } catch { return []; }
+  } catch(e) { return []; }
 }
 
 // ── Simple Mode ──
-function SimpleMode({ addSessionScan }) {
-  const [file, setFile] = useState(null);
-  const [scanning, setScanning] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [dragover, setDragover] = useState(false);
-  const inputRef = useRef();
+function SimpleMode({ addSessionScan, localHistory, clearHistory }) {
+  var _file = useState(null), file = _file[0], setFile = _file[1];
+  var _scanning = useState(false), scanning = _scanning[0], setScanning = _scanning[1];
+  var _result = useState(null), result = _result[0], setResult = _result[1];
+  var _error = useState(null), error = _error[0], setError = _error[1];
+  var _dragover = useState(false), dragover = _dragover[0], setDragover = _dragover[1];
+  var inputRef = useRef();
 
   function handleFiles(files) {
     if (!files || !files.length) return;
-    const f = files[0];
+    var f = files[0];
     if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
       setError('Please select a PDF file.');
       return;
@@ -1095,10 +1570,12 @@ function SimpleMode({ addSessionScan }) {
     setScanning(true);
     setError(null);
     try {
-      const data = await scanFile(file);
+      var data = await scanFile(file);
       data.file_name = file.name;
       setResult(data);
-      addSessionScan?.(data);
+      addSessionScan(data);
+      playNotificationSound(data.final_label);
+      sendBrowserNotification(data);
     } catch (e) {
       setError(e.message || 'Scan failed. The backend may be starting up — try again in a moment.');
     } finally {
@@ -1113,154 +1590,146 @@ function SimpleMode({ addSessionScan }) {
   }
 
   if (result) {
-    const v = (result.final_label || 'suspicious').toLowerCase();
+    var v = (result.final_label || 'suspicious').toLowerCase();
     return h('div', null,
       h('div', { className: cls('verdict-card', v) },
         h(ShieldIcon, { verdict: v }),
         h('h2', { className: 'verdict-label' }, result.final_label || 'Unknown'),
         h('p', { className: 'verdict-confidence' },
           'Confidence: ', pct(result.final_confidence),
-          ' · Rule severity: ', result.rule_severity || '—'
-        ),
+          ' · Rule severity: ', result.rule_severity || '—'),
         result.recommendation && h('p', { className: 'verdict-recommendation' }, result.recommendation),
         h('div', { className: 'verdict-details' },
           h('div', { className: 'detail-item' },
             h('div', { className: 'label' }, 'ML Label'),
-            h('div', { className: 'value' }, result.ml_label || '—')
-          ),
+            h('div', { className: 'value' }, result.ml_label || '—')),
           h('div', { className: 'detail-item' },
             h('div', { className: 'label' }, 'ML Confidence'),
-            h('div', { className: 'value' }, pct(result.ml_confidence))
-          ),
+            h('div', { className: 'value' }, pct(result.ml_confidence))),
           h('div', { className: 'detail-item' },
             h('div', { className: 'label' }, 'Rule Score'),
-            h('div', { className: 'value' }, result.rule_score != null ? result.rule_score.toFixed(2) : '—')
-          ),
+            h('div', { className: 'value' }, result.rule_score != null ? result.rule_score.toFixed(2) : '—')),
           h('div', { className: 'detail-item' },
             h('div', { className: 'label' }, 'SHA-256'),
-            h('div', { className: 'value' }, shortHash(result.sha256))
-          )
-        ),
-        h('button', { className: 'scan-another', onClick: reset }, 'Scan another file')
-      ),
+            h('div', { className: 'value' }, shortHash(result.sha256)))),
+        h('div', { className: 'verdict-actions' },
+          h('button', { className: 'action-btn', onClick: function() { exportReport(result); }, title: 'Export report' },
+            h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' },
+              h('path', { d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' }),
+              h('polyline', { points: '7 10 12 15 17 10' }),
+              h('line', { x1: 12, y1: 15, x2: 12, y2: 3 })),
+            'Export'),
+          h('button', { className: 'action-btn', onClick: function() { shareResult(result); }, title: 'Share result' },
+            h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' },
+              h('circle', { cx: 18, cy: 5, r: 3 }),
+              h('circle', { cx: 6, cy: 12, r: 3 }),
+              h('circle', { cx: 18, cy: 19, r: 3 }),
+              h('line', { x1: 8.59, y1: 13.51, x2: 15.42, y2: 17.49 }),
+              h('line', { x1: 15.41, y1: 6.51, x2: 8.59, y2: 10.49 })),
+            'Share'),
+          h('button', { className: 'scan-another', onClick: reset }, 'Scan another'))),
       result.triggered_rules && result.triggered_rules.length > 0 && h('div', { className: 'panel', style: { marginTop: 20 } },
         h('div', { className: 'panel-header' }, 'Triggered Rules'),
         h('div', { className: 'panel-body' },
           h('div', { className: 'rules-list' },
-            result.triggered_rules.map((r, i) =>
-              h('div', { className: 'rule-item', key: i },
+            result.triggered_rules.map(function(r, i) {
+              return h('div', { className: 'rule-item', key: i },
                 h('div', { className: 'rule-dot', style: { background: v === 'benign' ? 'var(--green)' : v === 'malicious' ? 'var(--red)' : 'var(--orange)' } }),
                 h('span', { className: 'rule-name' }, r.name || r.rule_name || r),
-                r.score != null && h('span', { className: 'rule-score' }, '+' + r.score)
-              )
-            )
-          )
-        )
-      ),
+                r.score != null && h('span', { className: 'rule-score' }, '+' + r.score));
+            })))),
       result.explanations && result.explanations.length > 0 && h('div', { className: 'panel', style: { marginTop: 16 } },
         h('div', { className: 'panel-header' }, 'Explanations'),
         h('div', { className: 'panel-body' },
           h('div', { className: 'rules-list' },
-            result.explanations.map((ex, i) =>
-              h('div', { className: 'rule-item', key: i },
-                h('span', { className: 'rule-name' }, typeof ex === 'string' ? ex : ex.text || JSON.stringify(ex))
-              )
-            )
-          )
-        )
-      )
-    );
+            result.explanations.map(function(ex, i) {
+              return h('div', { className: 'rule-item', key: i },
+                h('span', { className: 'rule-name' }, typeof ex === 'string' ? ex : ex.text || JSON.stringify(ex)));
+            })))));
   }
 
   return h('div', null,
     h('div', {
       className: cls('scan-zone', dragover && 'dragover', file && 'has-file'),
-      onClick: () => !file && inputRef.current?.click(),
-      onDragOver: (e) => { e.preventDefault(); setDragover(true); },
-      onDragLeave: () => setDragover(false),
-      onDrop: (e) => { e.preventDefault(); setDragover(false); handleFiles(e.dataTransfer.files); }
+      onClick: function() { if (!file) inputRef.current && inputRef.current.click(); },
+      onDragOver: function(e) { e.preventDefault(); setDragover(true); },
+      onDragLeave: function() { setDragover(false); },
+      onDrop: function(e) { e.preventDefault(); setDragover(false); handleFiles(e.dataTransfer.files); }
     },
-      h('input', {
-        ref: inputRef,
-        type: 'file',
-        accept: '.pdf,application/pdf',
-        className: 'sr-only',
-        onChange: (e) => handleFiles(e.target.files)
-      }),
+      h('input', { ref: inputRef, type: 'file', accept: '.pdf,application/pdf', className: 'sr-only', onChange: function(e) { handleFiles(e.target.files); } }),
       !file && !scanning && h(Fragment, null,
         h('svg', { className: 'scan-icon', viewBox: '0 0 80 80', fill: 'none' },
           h('rect', { x: 15, y: 8, width: 50, height: 64, rx: 6, stroke: 'var(--fg-faint)', strokeWidth: 2.5 }),
           h('path', { d: 'M28 28h24M28 38h24M28 48h16', stroke: 'var(--fg-faint)', strokeWidth: 2, strokeLinecap: 'round' }),
           h('circle', { cx: 54, cy: 56, r: 12, stroke: 'var(--accent)', strokeWidth: 2.5 }),
-          h('line', { x1: 62, y1: 64, x2: 70, y2: 72, stroke: 'var(--accent)', strokeWidth: 2.5, strokeLinecap: 'round' })
-        ),
+          h('line', { x1: 62, y1: 64, x2: 70, y2: 72, stroke: 'var(--accent)', strokeWidth: 2.5, strokeLinecap: 'round' })),
         h('h2', null, 'Scan a PDF'),
-        h('p', null, 'Drop a file here or click to browse')
-      ),
+        h('p', null, 'Drop a file here or click to browse')),
       file && !scanning && h(Fragment, null,
         h('div', { className: 'file-info' },
           h('span', null, '📄'),
           h('span', { className: 'name' }, file.name),
           h('span', null, '(' + (file.size / 1024).toFixed(1) + ' KB)'),
-          h('button', { className: 'clear-file', onClick: (e) => { e.stopPropagation(); reset(); }, 'aria-label': 'Remove file' }, '×')
-        ),
-        h('button', { className: 'scan-btn', onClick: (e) => { e.stopPropagation(); doScan(); } },
+          h('button', { className: 'clear-file', onClick: function(e) { e.stopPropagation(); reset(); }, 'aria-label': 'Remove file' }, '×')),
+        h('button', { className: 'scan-btn', onClick: function(e) { e.stopPropagation(); doScan(); } },
           h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none' },
-            h('path', { d: 'M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z', stroke: 'white', strokeWidth: 2, fill: 'none' })
-          ),
-          'Scan PDF'
-        )
-      ),
+            h('path', { d: 'M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z', stroke: 'white', strokeWidth: 2, fill: 'none' })),
+          'Scan PDF')),
       scanning && h(Fragment, null,
         h('p', { style: { marginBottom: 8 } }, 'Analyzing…'),
-        h('div', { className: 'progress-bar' },
-          h('div', { className: 'progress-fill' })
-        ),
-        h('p', { style: { fontSize: 13, color: 'var(--fg-faint)', marginTop: 12 } }, 'Running hybrid ML + rule engine')
-      )
-    ),
-    error && h('div', { className: 'error-banner' },
-      h('span', null, '⚠'),
-      h('span', null, error)
-    )
-  );
+        h('div', { className: 'progress-bar' }, h('div', { className: 'progress-fill' })),
+        h('p', { style: { fontSize: 13, color: 'var(--fg-faint)', marginTop: 12 } }, 'Running hybrid ML + rule engine'))),
+    error && h('div', { className: 'error-banner' }, h('span', null, '⚠'), h('span', null, error)),
+    // Recent scans
+    localHistory.length > 0 && h('div', { className: 'simple-history' },
+      h('h3', null,
+        h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' },
+          h('circle', { cx: 12, cy: 12, r: 10 }),
+          h('polyline', { points: '12 6 12 12 16 14' })),
+        'Recent Scans',
+        h('button', { className: 'clear-history-btn', onClick: clearHistory }, 'Clear')),
+      h('div', { className: 'history-list' },
+        localHistory.slice(0, 5).map(function(s, i) {
+          return h('div', { className: 'history-entry', key: i },
+            h('span', { className: cls('verdict-badge', (s.final_label||s.label||'unknown').toLowerCase()) },
+              s.final_label || s.label || '—'),
+            h('span', { className: 'h-name' }, s.file_name || s.sha256 || 'Unknown'),
+            h('span', { className: 'h-time' }, fmtDate(s.timestamp)));
+        }))));
 }
 
 // ── Analyst Mode ──
 function AnalystMode({ sessionScans, addSessionScan }) {
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [batchFiles, setBatchFiles] = useState([]);
-  const [batchResults, setBatchResults] = useState({});
-  const batchRef = useRef();
+  var _history = useState([]), history = _history[0], setHistory = _history[1];
+  var _loading = useState(true), loading = _loading[0], setLoading = _loading[1];
+  var _batchFiles = useState([]), batchFiles = _batchFiles[0], setBatchFiles = _batchFiles[1];
+  var _batchResults = useState({}), batchResults = _batchResults[0], setBatchResults = _batchResults[1];
+  var batchRef = useRef();
 
-  useEffect(() => {
-    fetchHistory().then(h => { setHistory(h); setLoading(false); });
+  useEffect(function() {
+    fetchHistory().then(function(h) { setHistory(h); setLoading(false); });
   }, []);
 
-  // Merge history + session scans, dedup by sha256
-  const allScans = (() => {
-    const seen = new Set();
-    const merged = [];
-    for (const s of sessionScans) {
-      const key = s.sha256 || s.file_name || Math.random();
+  var allScans = (function() {
+    var seen = new Set();
+    var merged = [];
+    sessionScans.forEach(function(s) {
+      var key = s.sha256 || s.file_name || Math.random();
       if (!seen.has(key)) { seen.add(key); merged.push(s); }
-    }
-    for (const s of history) {
-      const key = s.sha256 || s.file_name || Math.random();
+    });
+    history.forEach(function(s) {
+      var key = s.sha256 || s.file_name || Math.random();
       if (!seen.has(key)) { seen.add(key); merged.push(s); }
-    }
+    });
     return merged;
   })();
 
-  // Stats from all scans
-  const total = allScans.length;
-  const malicious = allScans.filter(s => (s.final_label||s.label||'').toLowerCase() === 'malicious').length;
-  const suspicious = allScans.filter(s => (s.final_label||s.label||'').toLowerCase() === 'suspicious').length;
-  const benign = allScans.filter(s => (s.final_label||s.label||'').toLowerCase() === 'benign').length;
+  var total = allScans.length;
+  var malicious = allScans.filter(function(s) { return (s.final_label||s.label||'').toLowerCase() === 'malicious'; }).length;
+  var suspicious = allScans.filter(function(s) { return (s.final_label||s.label||'').toLowerCase() === 'suspicious'; }).length;
+  var benign = allScans.filter(function(s) { return (s.final_label||s.label||'').toLowerCase() === 'benign'; }).length;
 
-  // Verdict distribution for chart
-  const verdictDist = [
+  var verdictDist = [
     { label: 'Benign', value: benign },
     { label: 'Suspicious', value: suspicious },
     { label: 'Malicious', value: malicious }
@@ -1272,125 +1741,90 @@ function AnalystMode({ sessionScans, addSessionScan }) {
     return 'var(--orange)';
   }
 
-  // Batch upload
   function handleBatch(files) {
     if (!files) return;
-    const pdfs = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
-    setBatchFiles(prev => [...prev, ...pdfs]);
+    var pdfs = Array.from(files).filter(function(f) { return f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'); });
+    setBatchFiles(function(prev) { return prev.concat(pdfs); });
   }
 
   async function runBatch() {
-    for (const f of batchFiles) {
+    for (var i = 0; i < batchFiles.length; i++) {
+      var f = batchFiles[i];
       if (batchResults[f.name]) continue;
-      setBatchResults(prev => ({ ...prev, [f.name]: { status: 'scanning' } }));
+      setBatchResults(function(prev) { var o = Object.assign({}, prev); o[f.name] = { status: 'scanning' }; return o; });
       try {
-        const data = await scanFile(f);
+        var data = await scanFile(f);
         data.file_name = f.name;
-        setBatchResults(prev => ({ ...prev, [f.name]: { status: 'done', data } }));
-        addSessionScan?.(data);
+        setBatchResults(function(prev) { var o = Object.assign({}, prev); o[f.name] = { status: 'done', data: data }; return o; });
+        addSessionScan(data);
       } catch (e) {
-        setBatchResults(prev => ({ ...prev, [f.name]: { status: 'error', error: e.message } }));
+        setBatchResults(function(prev) { var o = Object.assign({}, prev); o[f.name] = { status: 'error', error: e.message }; return o; });
       }
     }
-    // Refresh history
-    const fresh = await fetchHistory();
+    var fresh = await fetchHistory();
     setHistory(fresh);
   }
 
-  const pendingBatch = batchFiles.filter(f => !batchResults[f.name]);
+  var pendingBatch = batchFiles.filter(function(f) { return !batchResults[f.name]; });
 
-  // Score chart from all scans
-  const scoreData = allScans.slice(0, 8).map(s => ({
-    label: (s.file_name || s.sha256 || '?').slice(0, 10),
-    value: s.rule_score != null ? Number(s.rule_score) : 0
-  })).reverse();
+  var scoreData = allScans.slice(0, 8).map(function(s) {
+    return { label: (s.file_name || s.sha256 || '?').slice(0, 10), value: s.rule_score != null ? Number(s.rule_score) : 0 };
+  }).reverse();
+
+  if (loading) return h(SkeletonLoader);
 
   return h('div', { className: 'analyst-grid' },
-    // Stat row
     h('div', { className: 'stat-row' },
       h('div', { className: 'stat-card' },
         h('div', { className: 'stat-label' }, 'Total Scans'),
-        h('div', { className: 'stat-value' }, total)
-      ),
+        h('div', { className: 'stat-value' }, total)),
       h('div', { className: 'stat-card' },
         h('div', { className: 'stat-label' }, 'Malicious'),
-        h('div', { className: cls('stat-value', 'red') }, malicious)
-      ),
+        h('div', { className: cls('stat-value', 'red') }, malicious)),
       h('div', { className: 'stat-card' },
         h('div', { className: 'stat-label' }, 'Suspicious'),
-        h('div', { className: cls('stat-value', 'orange') }, suspicious)
-      ),
+        h('div', { className: cls('stat-value', 'orange') }, suspicious)),
       h('div', { className: 'stat-card' },
         h('div', { className: 'stat-label' }, 'Benign'),
-        h('div', { className: cls('stat-value', 'green') }, benign)
-      )
-    ),
+        h('div', { className: cls('stat-value', 'green') }, benign))),
 
-    // Charts row
     total > 0 && h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 } },
       h('div', { className: 'panel' },
         h('div', { className: 'panel-header' }, 'Verdict Distribution'),
-        h('div', { className: 'panel-body' },
-          h(BarChart, { data: verdictDist, colorFn: verdictBarColor })
-        )
-      ),
+        h('div', { className: 'panel-body' }, h(BarChart, { data: verdictDist, colorFn: verdictBarColor }))),
       scoreData.length > 0 && h('div', { className: 'panel' },
         h('div', { className: 'panel-header' }, 'Rule Scores (Recent)'),
-        h('div', { className: 'panel-body' },
-          h(BarChart, { data: scoreData, colorFn: () => 'var(--chart-1)' })
-        )
-      )
-    ),
+        h('div', { className: 'panel-body' }, h(BarChart, { data: scoreData, colorFn: function() { return 'var(--chart-1)'; } })))),
 
-    // Batch upload
     h('div', { className: 'panel' },
       h('div', { className: 'panel-header' },
         h('span', null, 'Batch Upload'),
         batchFiles.length > 0 && pendingBatch.length > 0 && h('button', {
-          className: 'scan-btn',
-          style: { padding: '6px 16px', fontSize: 13 },
-          onClick: runBatch
-        }, 'Scan All')
-      ),
+          className: 'scan-btn', style: { padding: '6px 16px', fontSize: 13 }, onClick: runBatch
+        }, 'Scan All')),
       h('div', { className: 'panel-body' },
         h('div', {
           className: 'batch-zone',
-          onClick: () => batchRef.current?.click(),
-          onDragOver: (e) => e.preventDefault(),
-          onDrop: (e) => { e.preventDefault(); handleBatch(e.dataTransfer.files); }
+          onClick: function() { batchRef.current && batchRef.current.click(); },
+          onDragOver: function(e) { e.preventDefault(); },
+          onDrop: function(e) { e.preventDefault(); handleBatch(e.dataTransfer.files); }
         },
-          h('input', {
-            ref: batchRef,
-            type: 'file',
-            accept: '.pdf,application/pdf',
-            multiple: true,
-            className: 'sr-only',
-            onChange: (e) => handleBatch(e.target.files)
-          }),
-          h('p', null, 'Drop multiple PDFs here or click to select')
-        ),
+          h('input', { ref: batchRef, type: 'file', accept: '.pdf,application/pdf', multiple: true, className: 'sr-only', onChange: function(e) { handleBatch(e.target.files); } }),
+          h('p', null, 'Drop multiple PDFs here or click to select')),
         batchFiles.length > 0 && h('div', { className: 'batch-queue' },
-          batchFiles.map((f, i) => {
-            const r = batchResults[f.name];
-            const statusText = !r ? 'Queued' : r.status === 'scanning' ? 'Scanning…' : r.status === 'error' ? 'Error' : (r.data?.final_label || 'Done');
-            const statusColor = !r ? 'var(--fg-faint)' : r.status === 'scanning' ? 'var(--accent)' : r.status === 'error' ? 'var(--red)' : verdictColor(r.data?.final_label) === 'green' ? 'var(--green)' : verdictColor(r.data?.final_label) === 'red' ? 'var(--red)' : 'var(--orange)';
+          batchFiles.map(function(f, i) {
+            var r = batchResults[f.name];
+            var statusText = !r ? 'Queued' : r.status === 'scanning' ? 'Scanning…' : r.status === 'error' ? 'Error' : (r.data && r.data.final_label || 'Done');
+            var vc = !r ? 'var(--fg-faint)' : r.status === 'scanning' ? 'var(--accent)' : r.status === 'error' ? 'var(--red)' : verdictColor(r.data && r.data.final_label) === 'green' ? 'var(--green)' : verdictColor(r.data && r.data.final_label) === 'red' ? 'var(--red)' : 'var(--orange)';
             return h('div', { className: 'batch-item', key: i },
               h('span', { className: 'b-name' }, f.name),
-              h('span', { className: 'b-status', style: { color: statusColor } }, statusText)
-            );
-          })
-        )
-      )
-    ),
+              h('span', { className: 'b-status', style: { color: vc } }, statusText));
+          })))),
 
-    // History table
     h('div', { className: 'panel' },
-      h('div', { className: 'panel-header' },
-        h('span', null, 'Scan History'),
-        loading && h('span', { style: { fontSize: 12, color: 'var(--fg-faint)' } }, 'Loading…')
-      ),
+      h('div', { className: 'panel-header' }, h('span', null, 'Scan History')),
       h('div', { className: 'panel-body' },
-        allScans.length === 0 && !loading
+        allScans.length === 0
           ? h('div', { className: 'empty-state' }, 'No scan history yet. Scan a file to get started.')
           : h('div', { className: 'table-scroll' },
               h('table', { className: 'history-table' },
@@ -1400,97 +1834,101 @@ function AnalystMode({ sessionScans, addSessionScan }) {
                     h('th', null, 'Verdict'),
                     h('th', null, 'Confidence'),
                     h('th', null, 'Rule Score'),
-                    h('th', null, 'Time')
-                  )
-                ),
+                    h('th', null, 'Time'))),
                 h('tbody', null,
-                  allScans.slice(0, 20).map((s, i) =>
-                    h('tr', { key: i },
+                  allScans.slice(0, 20).map(function(s, i) {
+                    return h('tr', { key: i },
                       h('td', { className: 'mono' }, (s.file_name || s.sha256 || '—').slice(0, 24)),
-                      h('td', null,
-                        h('span', { className: cls('verdict-badge', (s.final_label||s.label||'unknown').toLowerCase()) },
-                          s.final_label || s.label || '—'
-                        )
-                      ),
+                      h('td', null, h('span', { className: cls('verdict-badge', (s.final_label||s.label||'unknown').toLowerCase()) }, s.final_label || s.label || '—')),
                       h('td', null, pct(s.final_confidence || s.confidence)),
                       h('td', { className: 'mono' }, s.rule_score != null ? Number(s.rule_score).toFixed(2) : '—'),
-                      h('td', null, fmtDate(s.timestamp || s.report_timestamp))
-                    )
-                  )
-                )
-              )
-            )
-      )
-    )
-  );
+                      h('td', null, fmtDate(s.timestamp || s.report_timestamp)));
+                  })))))));
 }
 
 // ── App ──
 function App() {
-  const [analystMode, setAnalystMode] = useState(false);
-  const [online, setOnline] = useState(null);
-  const [sessionScans, setSessionScans] = useState([]);
+  var _analyst = useState(false), analystMode = _analyst[0], setAnalystMode = _analyst[1];
+  var _online = useState(null), online = _online[0], setOnline = _online[1];
+  var _session = useState([]), sessionScans = _session[0], setSessionScans = _session[1];
+  var _theme = useState(getStoredTheme), theme = _theme[0], setTheme = _theme[1];
+  var _about = useState(false), showAbout = _about[0], setShowAbout = _about[1];
+  var _local = useState(loadScanHistory), localHistory = _local[0], setLocalHistory = _local[1];
 
   function addSessionScan(result) {
-    setSessionScans(prev => [{ ...result, timestamp: new Date().toISOString(), _session: true }, ...prev]);
+    var scan = Object.assign({}, result, { timestamp: new Date().toISOString(), _session: true });
+    setSessionScans(function(prev) { return [scan].concat(prev); });
+    setLocalHistory(function(prev) {
+      var updated = [scan].concat(prev);
+      saveScanHistory(updated);
+      return updated;
+    });
   }
 
-  useEffect(() => {
+  function clearHistory() {
+    saveScanHistory([]);
+    setLocalHistory([]);
+    showToast('History cleared');
+  }
+
+  function cycleTheme() {
+    setTheme(function(prev) {
+      var next = prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system';
+      applyTheme(next);
+      showToast('Theme: ' + next.charAt(0).toUpperCase() + next.slice(1));
+      return next;
+    });
+  }
+
+  useEffect(function() {
     checkHealth().then(setOnline);
-    const id = setInterval(() => checkHealth().then(setOnline), 30000);
-    return () => clearInterval(id);
+    var id = setInterval(function() { checkHealth().then(setOnline); }, 30000);
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      setTimeout(function() { Notification.requestPermission(); }, 3000);
+    }
+    return function() { clearInterval(id); };
   }, []);
+
+  var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return h('div', null,
     h('header', { className: 'app-header' },
-      h('div', { className: 'app-logo' },
-        h(Logo),
-        h('h1', null, 'PDFSafe', h('span', null, 'Scan'))
-      ),
+      h('div', { className: 'app-logo' }, h(Logo), h('h1', null, 'PDFSafe', h('span', null, 'Scan'))),
       h('div', { className: 'header-controls' },
         h('div', {
           className: cls('health-dot', online === true ? 'online' : online === false ? 'offline' : ''),
           title: online === true ? 'API online' : online === false ? 'API offline' : 'Checking…'
         }),
+        h('button', { className: 'icon-btn', onClick: cycleTheme, title: 'Theme: ' + theme, 'aria-label': 'Toggle theme' },
+          isDark ? h(SunIcon) : h(MoonIcon)),
+        h('button', { className: 'icon-btn', onClick: function() { setShowAbout(true); }, title: 'About PDFSafeScan', 'aria-label': 'About' }, '?'),
         h('label', { className: 'mode-toggle' },
           h('span', null, analystMode ? 'Analyst' : 'Simple'),
           h('div', {
             className: cls('toggle-track', analystMode && 'active'),
-            onClick: () => setAnalystMode(p => !p),
+            onClick: function() { setAnalystMode(function(p) { return !p; }); },
             role: 'switch',
             'aria-checked': analystMode,
             tabIndex: 0,
-            onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAnalystMode(p => !p); } }
-          },
-            h('div', { className: 'toggle-thumb' })
-          )
-        )
-      )
-    ),
-    analystMode ? h(AnalystMode, { sessionScans, addSessionScan }) : h(SimpleMode, { addSessionScan }),
+            onKeyDown: function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAnalystMode(function(p) { return !p; }); } }
+          }, h('div', { className: 'toggle-thumb' }))))),
+    analystMode
+      ? h(AnalystMode, { sessionScans: sessionScans, addSessionScan: addSessionScan })
+      : h(SimpleMode, { addSessionScan: addSessionScan, localHistory: localHistory, clearHistory: clearHistory }),
+    showAbout && h(AboutModal, { onClose: function() { setShowAbout(false); } }),
     h('footer', { style: {
-      marginTop: 48,
-      paddingBlock: '20px',
-      borderTop: '1px solid var(--border)',
-      textAlign: 'center',
-      fontSize: 12,
-      color: 'var(--fg-faint)',
-      letterSpacing: '0.02em',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '6px'
+      marginTop: 48, paddingBlock: '20px', borderTop: '1px solid var(--border)',
+      textAlign: 'center', fontSize: 12, color: 'var(--fg-faint)', letterSpacing: '0.02em',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
     } },
       h('span', null, '🛡️ PDFSafeScan'),
-      h('span', { style: { opacity: 0.7 } }, 'Hybrid ML + Rule-Based Malware Detection')
-    )
-  );
+      h('span', { style: { opacity: 0.7 } }, 'Hybrid ML + Rule-Based Malware Detection')));
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(h(App));
 
-// Register service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.register('/sw.js').catch(function() {});
 }
 </script>

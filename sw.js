@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pdfsafescan-v3';
+const CACHE_NAME = 'pdfsafescan-v4';
 const LOCAL_ASSETS = [
   '/',
   '/index.html',
@@ -25,11 +25,16 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  if (url.hostname !== location.hostname) return;
-  if (url.pathname.startsWith('/api/')) {
-    e.respondWith(fetch(e.request));
-    return;
+
+  // Always go to network for API calls
+  if (url.pathname.startsWith('/api/') || url.hostname !== location.hostname) {
+    if (url.hostname === location.hostname) {
+      e.respondWith(fetch(e.request));
+      return;
+    }
   }
+
+  // Cache-first for static assets
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
