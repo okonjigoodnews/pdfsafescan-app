@@ -1352,12 +1352,42 @@ function shareResult(result) {
     + '\nRule Score: ' + (result.rule_score != null ? result.rule_score.toFixed(2) : 'N/A')
     + (result.recommendation ? '\n\n' + result.recommendation : '');
 
-  if (navigator.share) {
-    navigator.share({ title: 'PDFSafeScan Report', text: text }).catch(function() {});
-  } else if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('Copied to clipboard');
-    }).catch(function() { showToast('Could not copy'); });
+  var data = { title: 'PDFSafeScan Report', text: text, url: location.origin };
+  var canNative = typeof navigator.share === 'function' &&
+    (typeof navigator.canShare !== 'function' || navigator.canShare(data));
+  if (canNative) {
+    navigator.share(data).catch(function(err) {
+      if (err && err.name === 'AbortError') return;
+      copyResultText(text);
+    });
+  } else {
+    copyResultText(text);
+  }
+}
+
+function copyResultText(text) {
+  function legacyCopy() {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+  function done(ok) {
+    showToast(ok ? 'Result copied \u2014 paste it anywhere to share' : 'Sharing isn\u2019t supported in this browser');
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() { done(true); }, function() { done(legacyCopy()); });
+  } else {
+    done(legacyCopy());
   }
 }
 
